@@ -16,6 +16,10 @@ io.on('connection', (socket)=>{
         io.emit('message', { message: 'Hello from server' });
         
     });
+    socket.on('msg_send', (data)=>{
+        console.log(data)
+        io.emit('msg_received', data);
+    })
 
     socket.on('disconnect', () => {
         console.log('User disconnected');
