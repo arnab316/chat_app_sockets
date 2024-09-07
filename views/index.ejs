@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Box</title>
+</head>
+<body>
+    <h1>Chat Box</h1>
+    <button id="startchat" data-roomid="<%= id %>">Start Chat</button>
+    <label class="text-right" for="newmsg">Enter your message:</label>
+    <input type="text" id="roomId" placeholder="room id....">
+    <!-- <input type="text" id="username" placeholder="user id ..."> -->
+    <input type="text" id="newmsg" placeholder="Type your message here">
+    <button id="btn" >Send</button>
+
+    <ul id="msglist"></ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <script>
+    const socket = io();
+
+    let startchat = document.getElementById("startchat");
+    let newmsg = document.getElementById('newmsg');
+    let btn = document.getElementById('btn');
+    let msglist = document.getElementById('msglist');
+
+    if (!msglist) {
+        console.error('Element with ID "msglist" not found.');
+    } else {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            socket.emit('msg_send', { message: newmsg.value,
+                roomid: startchat.getAttribute('data-roomid')
+             });
+           
+            newmsg.value = '';
+        } 
+        startchat.onclick = () => {
+            socket.emit('join_room', {
+         roomid: startchat.getAttribute('data-roomid')
+  });
+ }
+        socket.on('msg_received', (data) => {
+            console.log(data + 'client');
+            if (msglist) {
+                msglist.innerHTML += `<li>${data.message}</li>`;
+            }
+        });
+    }
+    </script>
+</body>
+</html>
