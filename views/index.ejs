@@ -7,14 +7,20 @@
 </head>
 <body>
     <h1>Chat Box</h1>
-    <button id="startchat" data-roomid="<%= id %>">Start Chat</button>
+    <input id="startchat" type="hidden" data-roomid="<%= id %>"></input>
     <label class="text-right" for="newmsg">Enter your message:</label>
-    <input type="text" id="roomId" placeholder="room id....">
-    <!-- <input type="text" id="username" placeholder="user id ..."> -->
+    <!-- <input type="text" id="roomId" placeholder="room id...."> -->
+    <input type="text" id="username" placeholder="user id ...">
     <input type="text" id="newmsg" placeholder="Type your message here">
     <button id="btn" >Send</button>
 
-    <ul id="msglist"></ul>
+    <ul id="msglist">
+        <% for (var i =0; i < chats.length;  i++ ) { %>
+            <li><%= chats[i].user %> : <%= chats[i].content %></li>   
+
+            <% } %>
+            
+    </ul>
 
     <script src="/socket.io/socket.io.js"></script>
     
@@ -24,31 +30,34 @@
     let startchat = document.getElementById("startchat");
     let newmsg = document.getElementById('newmsg');
     let btn = document.getElementById('btn');
+    let username = document.getElementById('username');
     let msglist = document.getElementById('msglist');
+      
 
-    if (!msglist) {
-        console.error('Element with ID "msglist" not found.');
-    } else {
+
+            socket.emit('join_room', {
+         roomid: startchat.getAttribute('data-roomid')
+                                                      });
+ 
+    
         btn.onclick = (e) => {
             e.preventDefault();
-            socket.emit('msg_send', { message: newmsg.value,
+            socket.emit('msg_send', {  
+                message: newmsg.value,
+                username: username.value,
                 roomid: startchat.getAttribute('data-roomid')
              });
            
             newmsg.value = '';
         } 
-        startchat.onclick = () => {
-            socket.emit('join_room', {
-         roomid: startchat.getAttribute('data-roomid')
-  });
- }
+       
         socket.on('msg_received', (data) => {
             console.log(data + 'client');
             if (msglist) {
-                msglist.innerHTML += `<li>${data.message}</li>`;
+                msglist.innerHTML += `<li>${data.username}:: ${data.message}</li>`;
             }
         });
-    }
+    
     </script>
 </body>
 </html>
